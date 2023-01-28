@@ -2,6 +2,7 @@ package com.marchal.christophe.phoresttechtest.salon;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -11,8 +12,12 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
     private OffsetDateTime startTime;
+    @NotNull
     private OffsetDateTime endTime;
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;

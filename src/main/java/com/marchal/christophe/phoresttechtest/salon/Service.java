@@ -4,14 +4,23 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull
+    @Size(min = 2)
     private String name;
+    @NotNull
+    @Min(0)
     private Double price;
+    @NotNull
+    @Min(0)
     private Integer loyaltyPoints;
 
 
@@ -55,5 +64,5 @@ public class Service {
     public void setLoyaltyPoints(Integer loyaltyPoints) {
         this.loyaltyPoints = loyaltyPoints;
     }
-    
+
 }
