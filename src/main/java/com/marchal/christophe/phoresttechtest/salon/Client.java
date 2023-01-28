@@ -4,17 +4,30 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull
     private String firstName;
+    @NotNull
     private String lastName;
+    @Email
+    @NotNull
     private String email;
+
+    //TODO integrate with https://github.com/google/libphonenumber to validate phone number
+    // currently we would need a way for user to provide their local which should be one per salon.
+    @NotNull
     private String phone;
+
     private String gender;
+
+    @NotNull
     private Boolean banned;
 
     public Client() {
@@ -84,5 +97,5 @@ public class Client {
     public void setBanned(Boolean banned) {
         this.banned = banned;
     }
-    
+
 }
