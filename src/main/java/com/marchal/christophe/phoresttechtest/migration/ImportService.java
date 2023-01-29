@@ -1,11 +1,10 @@
 package com.marchal.christophe.phoresttechtest.migration;
 
 import com.marchal.christophe.phoresttechtest.exception.ImportFileParsingException;
-import com.marchal.christophe.phoresttechtest.migration.model.MigratingAppointment;
-import com.marchal.christophe.phoresttechtest.migration.model.MigratingClient;
-import com.marchal.christophe.phoresttechtest.migration.model.MigratingPurchase;
-import com.marchal.christophe.phoresttechtest.migration.model.MigratingService;
+import com.marchal.christophe.phoresttechtest.migration.model.*;
 import com.marchal.christophe.phoresttechtest.salon.*;
+import com.marchal.christophe.phoresttechtest.salon.dto.ProductOrServiceDTO;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -68,52 +68,37 @@ public class ImportService {
     }
 
     public void importPurchaseCsv(InputStream purchasesIs) {
-        try {
-            List<MigratingPurchase> migratingPurchases = parser.parseCsv(MigratingPurchase.class, purchasesIs);
-            Set<UUID> appointmentIds = migratingPurchases.stream().map(MigratingPurchase::appointmentId).collect(Collectors.toSet());
-            Iterable<Appointment> appointments = appointmentRepository.findAllById(appointmentIds);
-            Map<UUID, Appointment> appointmentsById = StreamSupport.stream(appointments.spliterator(), false)
-                    .collect(Collectors.groupingBy(Appointment::getId, Collectors.reducing(new Appointment(), (a, b) -> b)));
-            List<Purchase> purchases = migratingPurchases.stream()
-                    .map(purchase -> converter.toPurchase(purchase, appointmentsById.get(purchase.appointmentId())))
-                    .toList();
-            purchaseRepository.saveAll(purchases);
-            extractAndSaveProducts(purchases);
-        } catch (IOException e) {
-            throw new ImportFileParsingException("Failed to parse purchase csv file", e);
-        }
-    }
-
-    private void extractAndSaveProducts(List<Purchase> purchases) {
-        List<Product> products = purchases
-                .stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet()
-                .stream().map(p -> new Product(p.name(), p.price(), p.loyaltyPoints())).toList();
-
-        productRepository.saveAll(products);
-    }
-
-    private void extractAndSaveServices(List<Purchase> purchases) {
-        List<com.marchal.christophe.phoresttechtest.salon.Service> products = purchases
-                .stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet()
-                .stream().map(p -> new com.marchal.christophe.phoresttechtest.salon.Service(p.name(), p.price(), p.loyaltyPoints())).toList();
-
-        serviceRepository.saveAll(products);
+        Function<ProductOrServiceDTO, Product> productConstructor = p -> new Product(p.name(), p.price(), p.loyaltyPoints());
+        importSoldEntity(purchasesIs, MigratingPurchase.class, productConstructor, productRepository);
     }
 
     public void importServiceCsv(InputStream servicesIs) {
+        Function<ProductOrServiceDTO, com.marchal.christophe.phoresttechtest.salon.Service> serviceConstructor =
+                p -> new com.marchal.christophe.phoresttechtest.salon.Service(p.name(), p.price(), p.loyaltyPoints());
+        importSoldEntity(servicesIs, MigratingService.class, serviceConstructor, serviceRepository);
+    }
+
+    private <T extends MigratingSoldEntity, E> void importSoldEntity(InputStream servicesIs, Class<T> clazz, Function<ProductOrServiceDTO, E> entityConstructor, CrudRepository<E, UUID> repository) {
         try {
-            List<MigratingService> migratingServices = parser.parseCsv(MigratingService.class, servicesIs);
-            Set<UUID> appointmentIds = migratingServices.stream().map(MigratingService::appointmentId).collect(Collectors.toSet());
+            List<T> migratingServices = parser.parseCsv(clazz, servicesIs);
+            Set<UUID> appointmentIds = migratingServices.stream().map(MigratingSoldEntity::appointmentId).collect(Collectors.toSet());
             Iterable<Appointment> appointments = appointmentRepository.findAllById(appointmentIds);
             Map<UUID, Appointment> appointmentsById = StreamSupport.stream(appointments.spliterator(), false)
                     .collect(Collectors.groupingBy(Appointment::getId, Collectors.reducing(new Appointment(), (a, b) -> b)));
             List<Purchase> purchases = migratingServices.stream()
-                    .map(service -> converter.toPurchase(service, appointmentsById.get(service.appointmentId())))
+                    .map(entity -> converter.toPurchase(entity, appointmentsById.get(entity.appointmentId())))
                     .toList();
             purchaseRepository.saveAll(purchases);
-            extractAndSaveServices(purchases);
+            extractAndSaveDerivedEntity(purchases, entityConstructor, repository);
         } catch (IOException e) {
             throw new ImportFileParsingException("Failed to parse purchase csv file", e);
         }
+    }
+
+    private <E> void extractAndSaveDerivedEntity(List<Purchase> purchases, Function<ProductOrServiceDTO, E> entityConstructor, CrudRepository<E, UUID> repository) {
+        List<E> products = purchases
+                .stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet()
+                .stream().map(entityConstructor).toList();
+        repository.saveAll(products);
     }
 }
