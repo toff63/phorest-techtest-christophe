@@ -5,9 +5,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class MigratingClient {
-    private String id;
+    private UUID id;
     @NotNull
     @JsonAlias("first_name")
     private String firstName;
@@ -31,12 +32,13 @@ public class MigratingClient {
 
     public MigratingClient() {
     }
+    
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

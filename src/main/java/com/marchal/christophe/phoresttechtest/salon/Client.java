@@ -33,6 +33,16 @@ public class Client {
     @OneToMany(mappedBy = "client")
     private List<Appointment> appointments;
 
+    public Client(UUID id, String firstName, String lastName, String email, String phone, String gender, Boolean banned) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.gender = gender;
+        this.banned = banned;
+    }
+
     public Client() {
     }
 
