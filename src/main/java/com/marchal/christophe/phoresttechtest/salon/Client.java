@@ -27,6 +27,7 @@ public class Client {
     @NotNull
     private String phone;
 
+    @NotNull
     private String gender;
 
     @NotNull
