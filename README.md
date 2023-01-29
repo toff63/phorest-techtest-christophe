@@ -3,11 +3,13 @@
 
 ### Todo
 
-* [ ] Configure Hibernate to work with H2
-* [ ] Create entities
-* [ ] Expose entities via REST
-* [ ] Add import CSV endpoint for clients
-* [ ] Add import CSV endpoint for appointments
-* [ ] Add import CSV endpoint for services
-* [ ] Add import CSV endpoint for purchases 
-* [ ] Add endpoint returning most loyal clients
+* [X] Configure Hibernate to work with H2
+* [X] Create entities
+* [X] Expose entities via REST
+* [X] Add import CSV endpoint for clients
+* [X] Add import CSV endpoint for appointments
+* [X] Add import CSV endpoint for services
+* [X] Add import CSV endpoint for purchases 
+* [X] Add endpoint returning most loyal clients
+* [ ] Polish by adding some validation
+* [ ] Add / Update documentation
