@@ -23,5 +23,5 @@ public record MigratingPurchase(
 
         @NotNull
         @JsonAlias("appointment_id")
-        UUID appointmentId) {
+        UUID appointmentId) implements MigratingSoldEntity {
 }

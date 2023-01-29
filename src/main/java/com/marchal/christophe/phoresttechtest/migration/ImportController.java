@@ -55,4 +55,16 @@ public class ImportController {
 
         return "redirect:/";
     }
+
+    @PostMapping("/service")
+    public String importServices(@RequestParam("file") MultipartFile file,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            service.importServiceCsv(file.getInputStream());
+        } catch (IOException e) {
+            throw new ImportFileException("Failed to import Client CSV file", e);
+        }
+
+        return "redirect:/";
+    }
 }

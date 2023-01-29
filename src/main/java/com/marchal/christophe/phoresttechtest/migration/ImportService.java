@@ -4,6 +4,7 @@ import com.marchal.christophe.phoresttechtest.exception.ImportFileParsingExcepti
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingAppointment;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingClient;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingPurchase;
+import com.marchal.christophe.phoresttechtest.migration.model.MigratingService;
 import com.marchal.christophe.phoresttechtest.salon.*;
 import org.springframework.stereotype.Service;
 
@@ -86,8 +87,33 @@ public class ImportService {
     private void extractAndSaveProducts(List<Purchase> purchases) {
         List<Product> products = purchases
                 .stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet()
-                .stream().map(p -> new Product(p.getName(), p.getPrice(), p.getLoyaltyPoints())).toList();
+                .stream().map(p -> new Product(p.name(), p.price(), p.loyaltyPoints())).toList();
 
         productRepository.saveAll(products);
+    }
+
+    private void extractAndSaveServices(List<Purchase> purchases) {
+        List<com.marchal.christophe.phoresttechtest.salon.Service> products = purchases
+                .stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet()
+                .stream().map(p -> new com.marchal.christophe.phoresttechtest.salon.Service(p.name(), p.price(), p.loyaltyPoints())).toList();
+
+        serviceRepository.saveAll(products);
+    }
+
+    public void importServiceCsv(InputStream servicesIs) {
+        try {
+            List<MigratingService> migratingServices = parser.parseCsv(MigratingService.class, servicesIs);
+            Set<UUID> appointmentIds = migratingServices.stream().map(MigratingService::appointmentId).collect(Collectors.toSet());
+            Iterable<Appointment> appointments = appointmentRepository.findAllById(appointmentIds);
+            Map<UUID, Appointment> appointmentsById = StreamSupport.stream(appointments.spliterator(), false)
+                    .collect(Collectors.groupingBy(Appointment::getId, Collectors.reducing(new Appointment(), (a, b) -> b)));
+            List<Purchase> purchases = migratingServices.stream()
+                    .map(service -> converter.toPurchase(service, appointmentsById.get(service.appointmentId())))
+                    .toList();
+            purchaseRepository.saveAll(purchases);
+            extractAndSaveServices(purchases);
+        } catch (IOException e) {
+            throw new ImportFileParsingException("Failed to parse purchase csv file", e);
+        }
     }
 }

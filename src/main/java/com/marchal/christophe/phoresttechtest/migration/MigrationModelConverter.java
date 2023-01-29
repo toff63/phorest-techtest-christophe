@@ -2,7 +2,7 @@ package com.marchal.christophe.phoresttechtest.migration;
 
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingAppointment;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingClient;
-import com.marchal.christophe.phoresttechtest.migration.model.MigratingPurchase;
+import com.marchal.christophe.phoresttechtest.migration.model.MigratingSoldEntity;
 import com.marchal.christophe.phoresttechtest.salon.Appointment;
 import com.marchal.christophe.phoresttechtest.salon.AppointmentRepository;
 import com.marchal.christophe.phoresttechtest.salon.Client;
@@ -47,20 +47,22 @@ public class MigrationModelConverter {
         return client == null || client.getId() == null || !client.getId().equals(migratingAppointment.clientId());
     }
 
-    private boolean appointmentNotFound(MigratingPurchase migratingPurchase, Appointment appointment) {
+    private boolean appointmentNotFound(MigratingSoldEntity migratingPurchase, Appointment appointment) {
         return appointment == null || appointment.getId() == null || !appointment.getId().equals(migratingPurchase.appointmentId());
     }
 
-    public Purchase toPurchase(MigratingPurchase migratingPurchase, Appointment appointment) {
-        if (appointmentNotFound(migratingPurchase, appointment)) {
-            log.error("Purchase imported with unknown appointment: " + migratingPurchase);
+    public Purchase toPurchase(MigratingSoldEntity migratingSoldEntity, Appointment appointment) {
+        if (appointmentNotFound(migratingSoldEntity, appointment)) {
+            log.error("Purchase imported with unknown appointment: " + migratingSoldEntity);
         }
         return new Purchase(
-                migratingPurchase.id(),
-                migratingPurchase.name(),
-                migratingPurchase.price(),
-                migratingPurchase.loyaltyPoints(),
+                migratingSoldEntity.id(),
+                migratingSoldEntity.name(),
+                migratingSoldEntity.price(),
+                migratingSoldEntity.loyaltyPoints(),
                 appointment
         );
     }
+
+
 }

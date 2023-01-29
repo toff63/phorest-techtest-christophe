@@ -24,5 +24,5 @@ public record MigratingService(
         @NotNull
         @JsonAlias("appointment_id")
         UUID appointmentId
-) {
+) implements MigratingSoldEntity {
 }

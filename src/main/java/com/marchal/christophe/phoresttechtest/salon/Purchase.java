@@ -1,6 +1,6 @@
 package com.marchal.christophe.phoresttechtest.salon;
 
-import com.marchal.christophe.phoresttechtest.salon.dto.ProductDTO;
+import com.marchal.christophe.phoresttechtest.salon.dto.ProductOrServiceDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -82,8 +82,8 @@ public class Purchase {
         this.appointment = appointment;
     }
 
-    public ProductDTO byProduct() {
-        return new ProductDTO(this.name, this.price, this.loyaltyPoints);
+    public ProductOrServiceDTO byProduct() {
+        return new ProductOrServiceDTO(this.name, this.price, this.loyaltyPoints);
     }
 
     @Override
