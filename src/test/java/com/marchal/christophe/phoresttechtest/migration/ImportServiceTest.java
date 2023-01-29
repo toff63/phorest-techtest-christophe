@@ -10,9 +10,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.repository.CrudRepository;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -54,13 +59,10 @@ class ImportServiceTest {
     public void testImportClientCsv() {
         InputStream is = CsvParserTest.class.getResourceAsStream("/clients.csv");
         importService.importClientCsv(is);
-        Iterable<Client> clients = clientRepository.findAll();
-        int nbClient = 0;
-        for (Client client : clients) {
-            assertEquals(0, validator.validate(client).size());
-            nbClient++;
-        }
-        assertEquals(4, nbClient);
+        Iterable<Client> clientsIt = clientRepository.findAll();
+        List<Client> clients = StreamSupport.stream(clientsIt.spliterator(), false).toList();
+        assertEquals(4, clients.size());
+        clients.forEach(client -> assertEquals(0, validator.validate(client).size()));
     }
 
     @Test
@@ -69,57 +71,65 @@ class ImportServiceTest {
         importService.importClientCsv(clientsIs);
         InputStream is = CsvParserTest.class.getResourceAsStream("/appointments.csv");
         importService.importAppointmentCsv(is);
-        Iterable<Appointment> appointments = appointmentRepository.findAll();
-        int nbAppointment = 0;
-        for (Appointment appointment : appointments) {
+        Iterable<Appointment> appointmentsIt = appointmentRepository.findAll();
+        List<Appointment> appointments = StreamSupport.stream(appointmentsIt.spliterator(), false).toList();
+        assertEquals(19, appointments.size());
+        appointments.forEach(appointment -> {
             assertEquals(0, validator.validate(appointments).size());
             assertNotNull(appointment.getClient());
-            nbAppointment++;
-        }
-        assertEquals(19, nbAppointment);
+        });
+
     }
 
     @Test
     public void testImportPurchaseCsv() {
-        InputStream clientsIs = CsvParserTest.class.getResourceAsStream("/clients.csv");
-        importService.importClientCsv(clientsIs);
-        InputStream appointmentsIs = CsvParserTest.class.getResourceAsStream("/appointments.csv");
-        importService.importAppointmentCsv(appointmentsIs);
-        InputStream purchasesIs = CsvParserTest.class.getResourceAsStream("/purchases.csv");
-        importService.importPurchaseCsv(purchasesIs);
-        Iterable<Purchase> purchases = purchaseRepository.findAll();
-        int nbPurchase = 0;
-        for (Purchase purchase : purchases) {
-            assertEquals(0, validator.validate(purchases).size());
-            assertNotNull(appointmentRepository.findByPurchases_Id(purchase.getId()));
-            nbPurchase++;
-        }
-        assertEquals(13, nbPurchase);
-        Set<ProductOrServiceDTO> expectedProducts = StreamSupport.stream(purchases.spliterator(), false).collect(Collectors.groupingBy(Purchase::byProduct)).keySet();
-        StreamSupport.stream(productRepository.findAll().spliterator(), false).forEach(product -> {
-            assertTrue(expectedProducts.contains(new ProductOrServiceDTO(product.getName(), product.getPrice(), product.getLoyaltyPoints())));
-        });
+        Function<Product, ProductOrServiceDTO> converter = p -> new ProductOrServiceDTO(p.getName(), p.getPrice(), p.getLoyaltyPoints());
+        testSoldEntityCsv(
+                "/purchases.csv",
+                importService::importPurchaseCsv,
+                13,
+                converter,
+                productRepository
+        );
     }
 
     @Test
     public void testImportServicesCsv() {
+        Function<Service, ProductOrServiceDTO> converter = s -> new ProductOrServiceDTO(s.getName(), s.getPrice(), s.getLoyaltyPoints());
+        testSoldEntityCsv(
+                "/services.csv",
+                importService::importServiceCsv,
+                39,
+                converter,
+                serviceRepository
+        );
+    }
+
+    private <E> void testSoldEntityCsv(
+            String csvFileName,
+            Consumer<InputStream> serviceFunction,
+            int expectedNumberOfPurchases,
+            Function<E, ProductOrServiceDTO> converter,
+            CrudRepository<E, UUID> repository) {
         InputStream clientsIs = CsvParserTest.class.getResourceAsStream("/clients.csv");
         importService.importClientCsv(clientsIs);
         InputStream appointmentsIs = CsvParserTest.class.getResourceAsStream("/appointments.csv");
         importService.importAppointmentCsv(appointmentsIs);
-        InputStream servicesIs = CsvParserTest.class.getResourceAsStream("/services.csv");
-        importService.importServiceCsv(servicesIs);
-        Iterable<Purchase> purchases = purchaseRepository.findAll();
-        int nbPurchase = 0;
-        for (Purchase purchase : purchases) {
-            assertEquals(0, validator.validate(purchases).size());
+        InputStream servicesIs = CsvParserTest.class.getResourceAsStream(csvFileName);
+        serviceFunction.accept(servicesIs);
+        Iterable<Purchase> purchasesIt = purchaseRepository.findAll();
+
+        List<Purchase> purchases = StreamSupport.stream(purchasesIt.spliterator(), false).toList();
+        assertEquals(expectedNumberOfPurchases, purchases.size());
+        purchases.forEach(purchase -> {
+            assertEquals(0, validator.validate(purchase).size());
             assertNotNull(appointmentRepository.findByPurchases_Id(purchase.getId()));
-            nbPurchase++;
-        }
-        assertEquals(39, nbPurchase);
-        Set<ProductOrServiceDTO> expectedServices = StreamSupport.stream(purchases.spliterator(), false).collect(Collectors.groupingBy(Purchase::byProduct)).keySet();
-        StreamSupport.stream(serviceRepository.findAll().spliterator(), false).forEach(product -> {
-            assertTrue(expectedServices.contains(new ProductOrServiceDTO(product.getName(), product.getPrice(), product.getLoyaltyPoints())));
+        });
+
+
+        Set<ProductOrServiceDTO> expectedServices = purchases.stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet();
+        StreamSupport.stream(repository.findAll().spliterator(), false).forEach(entity -> {
+            assertTrue(expectedServices.contains(converter.apply(entity)));
         });
     }
 }
