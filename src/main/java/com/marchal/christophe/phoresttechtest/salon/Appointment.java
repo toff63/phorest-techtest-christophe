@@ -23,7 +23,7 @@ public class Appointment {
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @OneToMany
+    @OneToMany(mappedBy = "appointment")
     private List<Purchase> purchases;
 
 

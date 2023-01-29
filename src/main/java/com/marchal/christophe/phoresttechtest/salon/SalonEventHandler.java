@@ -22,4 +22,11 @@ public class SalonEventHandler {
             appointment.setId(UUID.randomUUID());
         }
     }
+
+    @HandleBeforeCreate
+    public void handlePurchaseSave(Purchase purchase) {
+        if (purchase.getId() == null) {
+            purchase.setId(UUID.randomUUID());
+        }
+    }
 }

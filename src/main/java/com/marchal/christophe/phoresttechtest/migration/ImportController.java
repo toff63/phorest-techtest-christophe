@@ -29,9 +29,6 @@ public class ImportController {
         } catch (IOException e) {
             throw new ImportFileException("Failed to import Client CSV file", e);
         }
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
-
         return "redirect:/";
     }
 
@@ -44,8 +41,17 @@ public class ImportController {
         } catch (IOException e) {
             throw new ImportFileException("Failed to import Client CSV file", e);
         }
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
+        return "redirect:/";
+    }
+
+    @PostMapping("/purchase")
+    public String importPurchases(@RequestParam("file") MultipartFile file,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            service.importPurchaseCsv(file.getInputStream());
+        } catch (IOException e) {
+            throw new ImportFileException("Failed to import Client CSV file", e);
+        }
 
         return "redirect:/";
     }

@@ -1,9 +1,7 @@
 package com.marchal.christophe.phoresttechtest.migration;
 
-import com.marchal.christophe.phoresttechtest.salon.Appointment;
-import com.marchal.christophe.phoresttechtest.salon.AppointmentRepository;
-import com.marchal.christophe.phoresttechtest.salon.Client;
-import com.marchal.christophe.phoresttechtest.salon.ClientRepository;
+import com.marchal.christophe.phoresttechtest.salon.*;
+import com.marchal.christophe.phoresttechtest.salon.dto.ProductDTO;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -14,21 +12,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.InputStream;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ImportServiceTest {
 
     private static Validator validator;
-
-    @Autowired
-    private ClientRepository clientRepository;
     @Autowired
     private ImportService importService;
     @Autowired
+    private ClientRepository clientRepository;
+    @Autowired
     private AppointmentRepository appointmentRepository;
+    @Autowired
+    private PurchaseRepository purchaseRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ServiceRepository serviceRepository;
 
     @BeforeAll
     public static void setUpValidator() {
@@ -38,6 +43,10 @@ class ImportServiceTest {
 
     @BeforeEach
     public void deleteAllBeforeTest() {
+        purchaseRepository.deleteAll();
+        productRepository.deleteAll();
+        serviceRepository.deleteAll();
+        appointmentRepository.deleteAll();
         clientRepository.deleteAll();
     }
 
@@ -68,5 +77,27 @@ class ImportServiceTest {
             nbAppointment++;
         }
         assertEquals(19, nbAppointment);
+    }
+
+    @Test
+    public void testImportPurchaseCsv() {
+        InputStream clientsIs = CsvParserTest.class.getResourceAsStream("/clients.csv");
+        importService.importClientCsv(clientsIs);
+        InputStream appointmentsIs = CsvParserTest.class.getResourceAsStream("/appointments.csv");
+        importService.importAppointmentCsv(appointmentsIs);
+        InputStream purchasesIs = CsvParserTest.class.getResourceAsStream("/purchases.csv");
+        importService.importPurchaseCsv(purchasesIs);
+        Iterable<Purchase> purchases = purchaseRepository.findAll();
+        int nbPurchase = 0;
+        for (Purchase purchase : purchases) {
+            assertEquals(0, validator.validate(purchases).size());
+            assertNotNull(appointmentRepository.findByPurchases_Id(purchase.getId()));
+            nbPurchase++;
+        }
+        assertEquals(13, nbPurchase);
+        Set<ProductDTO> expectedProducts = StreamSupport.stream(purchases.spliterator(), false).collect(Collectors.groupingBy(Purchase::byProduct)).keySet();
+        StreamSupport.stream(productRepository.findAll().spliterator(), false).forEach(product -> {
+            assertTrue(expectedProducts.contains(new ProductDTO(product.getName(), product.getPrice(), product.getLoyaltyPoints())));
+        });
     }
 }

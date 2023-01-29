@@ -2,6 +2,7 @@ package com.marchal.christophe.phoresttechtest.migration;
 
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingAppointment;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingClient;
+import com.marchal.christophe.phoresttechtest.migration.model.MigratingPurchase;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -36,7 +37,6 @@ class CsvParserTest {
         InputStream is = CsvParserTest.class.getResourceAsStream("/clients.csv");
         try {
             List<MigratingClient> clients = parser.parseCsv(MigratingClient.class, is);
-            System.out.println(clients);
             assertEquals(4, clients.size());
             assertTrue(clients.stream().allMatch(c -> validator.validate(c).size() == 0));
         } catch (IOException e) {
@@ -49,9 +49,20 @@ class CsvParserTest {
         InputStream is = CsvParserTest.class.getResourceAsStream("/appointments.csv");
         try {
             List<MigratingAppointment> appointments = parser.parseCsv(MigratingAppointment.class, is);
-            System.out.println(appointments);
             assertEquals(19, appointments.size());
             assertTrue(appointments.stream().allMatch(c -> validator.validate(c).size() == 0));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void parsePurchaseCsv() {
+        InputStream is = CsvParserTest.class.getResourceAsStream("/purchases.csv");
+        try {
+            List<MigratingPurchase> purchases = parser.parseCsv(MigratingPurchase.class, is);
+            assertEquals(13, purchases.size());
+            assertTrue(purchases.stream().allMatch(c -> validator.validate(c).size() == 0));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

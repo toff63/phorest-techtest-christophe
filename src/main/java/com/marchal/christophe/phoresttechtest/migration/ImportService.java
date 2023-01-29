@@ -3,6 +3,7 @@ package com.marchal.christophe.phoresttechtest.migration;
 import com.marchal.christophe.phoresttechtest.exception.ImportFileParsingException;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingAppointment;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingClient;
+import com.marchal.christophe.phoresttechtest.migration.model.MigratingPurchase;
 import com.marchal.christophe.phoresttechtest.salon.*;
 import org.springframework.stereotype.Service;
 
@@ -23,17 +24,20 @@ public class ImportService {
     private final AppointmentRepository appointmentRepository;
     private final CsvParser parser;
     private final MigrationModelConverter converter;
+    private final PurchaseRepository purchaseRepository;
 
     public ImportService(ClientRepository clientRepository,
                          ProductRepository productRepository,
                          ServiceRepository serviceRepository,
-                         AppointmentRepository appointmentRepository, CsvParser parser, MigrationModelConverter converter) {
+                         AppointmentRepository appointmentRepository, CsvParser parser, MigrationModelConverter converter,
+                         PurchaseRepository purchaseRepository) {
         this.clientRepository = clientRepository;
         this.productRepository = productRepository;
         this.serviceRepository = serviceRepository;
         this.appointmentRepository = appointmentRepository;
         this.parser = parser;
         this.converter = converter;
+        this.purchaseRepository = purchaseRepository;
     }
 
     public void importClientCsv(InputStream inputStream) {
@@ -58,7 +62,32 @@ public class ImportService {
                     .toList();
             appointmentRepository.saveAll(appointments);
         } catch (IOException e) {
-            throw new ImportFileParsingException("Failed to parse client csv file", e);
+            throw new ImportFileParsingException("Failed to parse appointment csv file", e);
         }
+    }
+
+    public void importPurchaseCsv(InputStream purchasesIs) {
+        try {
+            List<MigratingPurchase> migratingPurchases = parser.parseCsv(MigratingPurchase.class, purchasesIs);
+            Set<UUID> appointmentIds = migratingPurchases.stream().map(MigratingPurchase::getAppointmentId).collect(Collectors.toSet());
+            Iterable<Appointment> appointments = appointmentRepository.findAllById(appointmentIds);
+            Map<UUID, Appointment> appointmentsById = StreamSupport.stream(appointments.spliterator(), false)
+                    .collect(Collectors.groupingBy(Appointment::getId, Collectors.reducing(new Appointment(), (a, b) -> b)));
+            List<Purchase> purchases = migratingPurchases.stream()
+                    .map(purchase -> converter.toPurchase(purchase, appointmentsById.get(purchase.getAppointmentId())))
+                    .toList();
+            purchaseRepository.saveAll(purchases);
+            extractAndSaveProducts(purchases);
+        } catch (IOException e) {
+            throw new ImportFileParsingException("Failed to parse purchase csv file", e);
+        }
+    }
+
+    private void extractAndSaveProducts(List<Purchase> purchases) {
+        List<Product> products = purchases
+                .stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet()
+                .stream().map(p -> new Product(p.getName(), p.getPrice(), p.getLoyaltyPoints())).toList();
+
+        productRepository.saveAll(products);
     }
 }
