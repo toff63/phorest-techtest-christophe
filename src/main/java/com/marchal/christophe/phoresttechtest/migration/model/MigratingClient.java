@@ -1,4 +1,4 @@
-package com.marchal.christophe.phoresttechtest.migration;
+package com.marchal.christophe.phoresttechtest.migration.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
