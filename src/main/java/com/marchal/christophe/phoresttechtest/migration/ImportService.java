@@ -1,16 +1,19 @@
 package com.marchal.christophe.phoresttechtest.migration;
 
 import com.marchal.christophe.phoresttechtest.exception.ImportFileParsingException;
+import com.marchal.christophe.phoresttechtest.migration.model.MigratingAppointment;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingClient;
-import com.marchal.christophe.phoresttechtest.salon.AppointmentRepository;
-import com.marchal.christophe.phoresttechtest.salon.ClientRepository;
-import com.marchal.christophe.phoresttechtest.salon.ProductRepository;
-import com.marchal.christophe.phoresttechtest.salon.ServiceRepository;
+import com.marchal.christophe.phoresttechtest.salon.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ImportService {
@@ -41,5 +44,21 @@ public class ImportService {
             throw new ImportFileParsingException("Failed to parse client csv file", e);
         }
 
+    }
+
+    public void importAppointmentCsv(InputStream inputStream) {
+        try {
+            List<MigratingAppointment> migratingAppointments = parser.parseCsv(MigratingAppointment.class, inputStream);
+            Set<UUID> clientIds = migratingAppointments.stream().map(MigratingAppointment::getClientId).collect(Collectors.toSet());
+            Iterable<Client> clients = clientRepository.findAllById(clientIds);
+            Map<UUID, Client> clientsByUUID = StreamSupport.stream(clients.spliterator(), false)
+                    .collect(Collectors.groupingBy(Client::getId, Collectors.reducing(new Client(), (a, b) -> b)));
+            List<Appointment> appointments = migratingAppointments.stream()
+                    .map(appointment -> converter.toAppointment(appointment, clientsByUUID.get(appointment.getClientId())))
+                    .toList();
+            appointmentRepository.saveAll(appointments);
+        } catch (IOException e) {
+            throw new ImportFileParsingException("Failed to parse client csv file", e);
+        }
     }
 }

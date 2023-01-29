@@ -34,4 +34,19 @@ public class ImportController {
 
         return "redirect:/";
     }
+
+    @PostMapping("/appointment")
+    public String importAppointments(@RequestParam("file") MultipartFile file,
+                                     RedirectAttributes redirectAttributes) {
+
+        try {
+            service.importAppointmentCsv(file.getInputStream());
+        } catch (IOException e) {
+            throw new ImportFileException("Failed to import Client CSV file", e);
+        }
+        redirectAttributes.addFlashAttribute("message",
+                "You successfully uploaded " + file.getOriginalFilename() + "!");
+
+        return "redirect:/";
+    }
 }

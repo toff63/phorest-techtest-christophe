@@ -11,7 +11,7 @@ import java.util.UUID;
 @Entity
 public class Appointment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @NotNull
     private UUID id;
 
     @NotNull
@@ -28,6 +28,20 @@ public class Appointment {
 
 
     public Appointment() {
+    }
+
+    public Appointment(UUID id, OffsetDateTime startTime, OffsetDateTime endTime, Client client) {
+        this.id = id;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.client = client;
+    }
+
+    public Appointment(OffsetDateTime startTime, OffsetDateTime endTime, Client client) {
+        this.id = UUID.randomUUID();
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.client = client;
     }
 
 

@@ -37,7 +37,7 @@ class CsvParserTest {
         try {
             List<MigratingClient> clients = parser.parseCsv(MigratingClient.class, is);
             System.out.println(clients);
-            assertEquals(9, clients.size());
+            assertEquals(4, clients.size());
             assertTrue(clients.stream().allMatch(c -> validator.validate(c).size() == 0));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -50,7 +50,7 @@ class CsvParserTest {
         try {
             List<MigratingAppointment> appointments = parser.parseCsv(MigratingAppointment.class, is);
             System.out.println(appointments);
-            assertEquals(9, appointments.size());
+            assertEquals(19, appointments.size());
             assertTrue(appointments.stream().allMatch(c -> validator.validate(c).size() == 0));
         } catch (IOException e) {
             throw new RuntimeException(e);

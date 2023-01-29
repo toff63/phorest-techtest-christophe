@@ -1,6 +1,8 @@
 package com.marchal.christophe.phoresttechtest.salon;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,7 +12,7 @@ import java.util.UUID;
 @Entity
 public class Client {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @NotNull
     private UUID id;
     @NotNull
     private String firstName;
@@ -35,6 +37,16 @@ public class Client {
 
     public Client(UUID id, String firstName, String lastName, String email, String phone, String gender, Boolean banned) {
         this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.gender = gender;
+        this.banned = banned;
+    }
+
+    public Client(String firstName, String lastName, String email, String phone, String gender, Boolean banned) {
+        this.id = UUID.randomUUID();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

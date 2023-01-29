@@ -1,5 +1,7 @@
 package com.marchal.christophe.phoresttechtest.migration;
 
+import com.marchal.christophe.phoresttechtest.salon.Appointment;
+import com.marchal.christophe.phoresttechtest.salon.AppointmentRepository;
 import com.marchal.christophe.phoresttechtest.salon.Client;
 import com.marchal.christophe.phoresttechtest.salon.ClientRepository;
 import jakarta.validation.Validation;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 class ImportServiceTest {
@@ -24,6 +27,8 @@ class ImportServiceTest {
     private ClientRepository clientRepository;
     @Autowired
     private ImportService importService;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     @BeforeAll
     public static void setUpValidator() {
@@ -46,7 +51,22 @@ class ImportServiceTest {
             assertEquals(0, validator.validate(client).size());
             nbClient++;
         }
-        assertEquals(9, nbClient);
+        assertEquals(4, nbClient);
+    }
 
+    @Test
+    public void testImportAppointmentCsv() {
+        InputStream clientsIs = CsvParserTest.class.getResourceAsStream("/clients.csv");
+        importService.importClientCsv(clientsIs);
+        InputStream is = CsvParserTest.class.getResourceAsStream("/appointments.csv");
+        importService.importAppointmentCsv(is);
+        Iterable<Appointment> appointments = appointmentRepository.findAll();
+        int nbAppointment = 0;
+        for (Appointment appointment : appointments) {
+            assertEquals(0, validator.validate(appointments).size());
+            assertNotNull(appointment.getClient());
+            nbAppointment++;
+        }
+        assertEquals(19, nbAppointment);
     }
 }

@@ -6,6 +6,7 @@ import com.marchal.christophe.phoresttechtest.serialization.OffsetDateTimeDeseri
 import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 public class MigratingAppointment {
@@ -59,5 +60,27 @@ public class MigratingAppointment {
 
     public void setClientId(UUID clientId) {
         this.clientId = clientId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MigratingAppointment that)) return false;
+        return Objects.equals(id, that.id) && Objects.equals(startTime, that.startTime) && Objects.equals(endTime, that.endTime) && Objects.equals(clientId, that.clientId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, startTime, endTime, clientId);
+    }
+
+    @Override
+    public String toString() {
+        return "MigratingAppointment{" +
+                "id=" + id +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", clientId=" + clientId +
+                '}';
     }
 }
