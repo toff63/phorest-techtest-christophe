@@ -1,17 +1,17 @@
 package com.marchal.christophe.phoresttechtest.salon;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
     @NotNull
     private String firstName;
     @NotNull
@@ -42,11 +42,11 @@ public class Client {
         this.banned = banned;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

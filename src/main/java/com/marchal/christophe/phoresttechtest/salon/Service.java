@@ -8,11 +8,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 @Entity
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
     @NotNull
     @Size(min = 2)
     private String name;
@@ -33,11 +35,11 @@ public class Service {
         this.loyaltyPoints = loyaltyPoints;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -65,4 +67,13 @@ public class Service {
         this.loyaltyPoints = loyaltyPoints;
     }
 
+    @Override
+    public String toString() {
+        return "Service{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", loyaltyPoints=" + loyaltyPoints +
+                '}';
+    }
 }

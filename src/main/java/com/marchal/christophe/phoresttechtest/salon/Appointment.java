@@ -6,12 +6,13 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
 
     @NotNull
     private OffsetDateTime startTime;
