@@ -21,13 +21,13 @@ public class MigrationModelConverter {
 
     public Client toClient(MigratingClient migratingClient) {
         return new Client(
-                migratingClient.getId(),
-                migratingClient.getFirstName(),
-                migratingClient.getLastName(),
-                migratingClient.getEmail(),
-                migratingClient.getPhone(),
-                migratingClient.getGender(),
-                migratingClient.getBanned()
+                migratingClient.id(),
+                migratingClient.firstName(),
+                migratingClient.lastName(),
+                migratingClient.email(),
+                migratingClient.phone(),
+                migratingClient.gender(),
+                migratingClient.banned()
         );
     }
 
@@ -36,19 +36,19 @@ public class MigrationModelConverter {
             log.error("Appointment imported with unknown client: " + migratingAppointment);
         }
         return new Appointment(
-                migratingAppointment.getId(),
-                migratingAppointment.getStartTime(),
-                migratingAppointment.getEndTime(),
+                migratingAppointment.id(),
+                migratingAppointment.startTime(),
+                migratingAppointment.endTime(),
                 client
         );
     }
 
     private boolean clientNotFound(MigratingAppointment migratingAppointment, Client client) {
-        return client == null || client.getId() == null || !client.getId().equals(migratingAppointment.getClientId());
+        return client == null || client.getId() == null || !client.getId().equals(migratingAppointment.clientId());
     }
 
     private boolean appointmentNotFound(MigratingPurchase migratingPurchase, Appointment appointment) {
-        return appointment == null || appointment.getId() == null || !appointment.getId().equals(migratingPurchase.getAppointmentId());
+        return appointment == null || appointment.getId() == null || !appointment.getId().equals(migratingPurchase.appointmentId());
     }
 
     public Purchase toPurchase(MigratingPurchase migratingPurchase, Appointment appointment) {
@@ -56,10 +56,10 @@ public class MigrationModelConverter {
             log.error("Purchase imported with unknown appointment: " + migratingPurchase);
         }
         return new Purchase(
-                migratingPurchase.getId(),
-                migratingPurchase.getName(),
-                migratingPurchase.getPrice(),
-                migratingPurchase.getLoyaltyPoints(),
+                migratingPurchase.id(),
+                migratingPurchase.name(),
+                migratingPurchase.price(),
+                migratingPurchase.loyaltyPoints(),
                 appointment
         );
     }

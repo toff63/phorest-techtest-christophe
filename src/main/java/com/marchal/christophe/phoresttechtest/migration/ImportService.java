@@ -53,12 +53,12 @@ public class ImportService {
     public void importAppointmentCsv(InputStream inputStream) {
         try {
             List<MigratingAppointment> migratingAppointments = parser.parseCsv(MigratingAppointment.class, inputStream);
-            Set<UUID> clientIds = migratingAppointments.stream().map(MigratingAppointment::getClientId).collect(Collectors.toSet());
+            Set<UUID> clientIds = migratingAppointments.stream().map(MigratingAppointment::clientId).collect(Collectors.toSet());
             Iterable<Client> clients = clientRepository.findAllById(clientIds);
             Map<UUID, Client> clientsByUUID = StreamSupport.stream(clients.spliterator(), false)
                     .collect(Collectors.groupingBy(Client::getId, Collectors.reducing(new Client(), (a, b) -> b)));
             List<Appointment> appointments = migratingAppointments.stream()
-                    .map(appointment -> converter.toAppointment(appointment, clientsByUUID.get(appointment.getClientId())))
+                    .map(appointment -> converter.toAppointment(appointment, clientsByUUID.get(appointment.clientId())))
                     .toList();
             appointmentRepository.saveAll(appointments);
         } catch (IOException e) {
@@ -69,12 +69,12 @@ public class ImportService {
     public void importPurchaseCsv(InputStream purchasesIs) {
         try {
             List<MigratingPurchase> migratingPurchases = parser.parseCsv(MigratingPurchase.class, purchasesIs);
-            Set<UUID> appointmentIds = migratingPurchases.stream().map(MigratingPurchase::getAppointmentId).collect(Collectors.toSet());
+            Set<UUID> appointmentIds = migratingPurchases.stream().map(MigratingPurchase::appointmentId).collect(Collectors.toSet());
             Iterable<Appointment> appointments = appointmentRepository.findAllById(appointmentIds);
             Map<UUID, Appointment> appointmentsById = StreamSupport.stream(appointments.spliterator(), false)
                     .collect(Collectors.groupingBy(Appointment::getId, Collectors.reducing(new Appointment(), (a, b) -> b)));
             List<Purchase> purchases = migratingPurchases.stream()
-                    .map(purchase -> converter.toPurchase(purchase, appointmentsById.get(purchase.getAppointmentId())))
+                    .map(purchase -> converter.toPurchase(purchase, appointmentsById.get(purchase.appointmentId())))
                     .toList();
             purchaseRepository.saveAll(purchases);
             extractAndSaveProducts(purchases);

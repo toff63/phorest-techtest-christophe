@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
-public record MigratingPurchase(
+public record MigratingService(
         @NotNull
         UUID id,
         @NotNull
@@ -23,5 +23,6 @@ public record MigratingPurchase(
 
         @NotNull
         @JsonAlias("appointment_id")
-        UUID appointmentId) {
+        UUID appointmentId
+) {
 }
