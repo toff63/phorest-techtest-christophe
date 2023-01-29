@@ -22,4 +22,8 @@ public class SalonFixture {
     public final static String frodoFirstName = "Frodo";
     public final static String bilboFirstName = "Bilbo";
     public final static String bagginsLastName = "Baggins";
+
+    public static String appointment(String client) {
+        return "{\"startTime\": \"2016-02-07T17:15:00+0000\", \"endTime\":\"2016-02-07T20:15:00+0000\", \"client\": \"" + client + "\"}";
+    }
 }

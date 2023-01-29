@@ -23,23 +23,19 @@ public class Appointment {
     @JoinColumn(name = "client_id")
     private Client client;
 
-    @ManyToMany
-    @JoinTable
-    private List<Product> products;
-
-    @ManyToMany
-    private List<Service> services;
+    @OneToMany
+    private List<Purchase> purchases;
 
 
     public Appointment() {
     }
 
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -67,19 +63,22 @@ public class Appointment {
         this.client = client;
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public List<Purchase> getPurchases() {
+        return purchases;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
+    public void setPurchases(List<Purchase> purchases) {
+        this.purchases = purchases;
     }
 
-    public List<Service> getServices() {
-        return services;
-    }
-
-    public void setServices(List<Service> services) {
-        this.services = services;
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "id=" + id +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", client=" + client +
+                ", purchases=" + purchases +
+                '}';
     }
 }

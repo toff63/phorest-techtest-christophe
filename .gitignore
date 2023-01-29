@@ -41,3 +41,6 @@ out/
 
 ## Vim ##
 .metals
+
+## H2 data ##
+data

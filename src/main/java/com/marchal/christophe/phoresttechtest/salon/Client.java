@@ -30,16 +30,10 @@ public class Client {
     @NotNull
     private Boolean banned;
 
-    public Client() {
-    }
+    @OneToMany(mappedBy = "client")
+    private List<Appointment> appointments;
 
-    public Client(String firstName, String lastName, String email, String phone, String gender, Boolean banned) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phone = phone;
-        this.gender = gender;
-        this.banned = banned;
+    public Client() {
     }
 
     public UUID getId() {
@@ -98,4 +92,24 @@ public class Client {
         this.banned = banned;
     }
 
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", gender='" + gender + '\'' +
+                ", banned=" + banned +
+                '}';
+    }
 }

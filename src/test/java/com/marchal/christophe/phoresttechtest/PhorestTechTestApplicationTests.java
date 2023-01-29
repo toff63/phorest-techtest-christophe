@@ -1,5 +1,6 @@
 package com.marchal.christophe.phoresttechtest;
 
+import com.marchal.christophe.phoresttechtest.salon.AppointmentRepository;
 import com.marchal.christophe.phoresttechtest.salon.ClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,16 +22,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PhorestTechTestApplicationTests {
 
     public static final String clientBasePath = "/client";
+    public static final String appointmentBasePath = "/appointment";
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ClientRepository clientRepository;
-
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     @BeforeEach
     public void deleteAllBeforeTest() {
         clientRepository.deleteAll();
+        appointmentRepository.deleteAll();
     }
 
     @Test
@@ -115,5 +120,19 @@ class PhorestTechTestApplicationTests {
         assertNotNull(location);
         mockMvc.perform(delete(location)).andExpect(status().isNoContent());
         mockMvc.perform(get(location)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void shouldAddAppointmentToClient() throws Exception {
+        MvcResult mvcClientResult = mockMvc.perform(post(clientBasePath).content(frodoBagginsClient))
+                .andExpect(status().isCreated()).andReturn();
+        String clientLocation = mvcClientResult.getResponse().getHeader("Location");
+        assertNotNull(clientLocation);
+        MvcResult mvcAppointmentResult = mockMvc.perform(post(appointmentBasePath).content(appointment(clientLocation)))
+                .andExpect(status().isCreated()).andReturn();
+        String appointmentLocation = mvcAppointmentResult.getResponse().getHeader("Location");
+        assertNotNull(appointmentLocation);
+        mockMvc.perform(get(clientLocation + "/appointments")).andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.appointment[0]").exists());
     }
 }
