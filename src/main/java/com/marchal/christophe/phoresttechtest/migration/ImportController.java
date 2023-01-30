@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Controller
 @RequestMapping("/import")
@@ -18,6 +19,25 @@ public class ImportController {
 
     public ImportController(ImportService service) {
         this.service = service;
+    }
+
+    @PostMapping("/salon")
+    public ImportResponse importSalon(
+            @RequestParam("clients") MultipartFile clientsFile,
+            @RequestParam("appointments") MultipartFile appointmentsFile,
+            @RequestParam("purchases") MultipartFile purchasesFile,
+            @RequestParam("services") MultipartFile servicesFile) {
+
+        return service.importSalon(openFile(clientsFile), openFile(appointmentsFile), openFile(purchasesFile), openFile(servicesFile));
+
+    }
+
+    private InputStream openFile(MultipartFile file) {
+        try {
+            return file.getInputStream();
+        } catch (IOException e) {
+            throw new ImportFileException("Failed to open " + file.getName(), e);
+        }
     }
 
     @PostMapping("/client")

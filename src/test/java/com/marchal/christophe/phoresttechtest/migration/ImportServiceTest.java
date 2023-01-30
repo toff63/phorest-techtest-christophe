@@ -58,11 +58,24 @@ class ImportServiceTest {
     @Test
     public void testImportClientCsv() {
         InputStream is = CsvParserTest.class.getResourceAsStream("/clients.csv");
-        importService.importClientCsv(is);
+        ImportEntityStatus result = importService.importClientCsv(is);
         Iterable<Client> clientsIt = clientRepository.findAll();
+        assertEquals(4, result.numberOfImportedEntities());
         List<Client> clients = StreamSupport.stream(clientsIt.spliterator(), false).toList();
         assertEquals(4, clients.size());
         clients.forEach(client -> assertEquals(0, validator.validate(client).size()));
+    }
+
+    @Test
+    public void testImportClientCsvWithInvalids() {
+        InputStream is = CsvParserTest.class.getResourceAsStream("/clients_with_invalid_rows.csv");
+        ImportEntityStatus result = importService.importClientCsv(is);
+        Iterable<Client> clientsIt = clientRepository.findAll();
+        assertEquals(2, result.numberOfImportedEntities());
+        List<Client> clients = StreamSupport.stream(clientsIt.spliterator(), false).toList();
+        assertEquals(2, clients.size());
+        clients.forEach(client -> assertEquals(0, validator.validate(client).size()));
+        assertEquals(2, result.errors().size());
     }
 
     @Test

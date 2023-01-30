@@ -19,6 +19,7 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class ImportService {
+    private final MigratingValidator validator;
     private final ClientRepository clientRepository;
     private final ProductRepository productRepository;
     private final ServiceRepository serviceRepository;
@@ -27,11 +28,15 @@ public class ImportService {
     private final MigrationModelConverter converter;
     private final PurchaseRepository purchaseRepository;
 
-    public ImportService(ClientRepository clientRepository,
+    public ImportService(MigratingValidator validator,
+                         ClientRepository clientRepository,
                          ProductRepository productRepository,
                          ServiceRepository serviceRepository,
-                         AppointmentRepository appointmentRepository, CsvParser parser, MigrationModelConverter converter,
-                         PurchaseRepository purchaseRepository) {
+                         AppointmentRepository appointmentRepository,
+                         PurchaseRepository purchaseRepository,
+                         CsvParser parser,
+                         MigrationModelConverter converter) {
+        this.validator = validator;
         this.clientRepository = clientRepository;
         this.productRepository = productRepository;
         this.serviceRepository = serviceRepository;
@@ -41,10 +46,15 @@ public class ImportService {
         this.purchaseRepository = purchaseRepository;
     }
 
-    public void importClientCsv(InputStream inputStream) {
+    public ImportEntityStatus importClientCsv(InputStream inputStream) {
         try {
             List<MigratingClient> clients = parser.parseCsv(MigratingClient.class, inputStream);
-            clientRepository.saveAll(clients.stream().map(converter::toClient).toList());
+            ValidatedEntity<MigratingClient> validatedEntity = validator.validate(clients);
+            Set<ImportError> errors = validatedEntity.invalidEntities().entrySet().stream()
+                    .map(mapEntry -> ImportError.fromConstraintsViolation(mapEntry.getKey(), mapEntry.getValue()))
+                    .collect(Collectors.toSet());
+            clientRepository.saveAll(validatedEntity.validEntities().stream().map(converter::toClient).toList());
+            return new ImportEntityStatus(validatedEntity.validEntities().size(), errors);
         } catch (IOException e) {
             throw new ImportFileParsingException("Failed to parse client csv file", e);
         }
@@ -100,5 +110,13 @@ public class ImportService {
                 .stream().collect(Collectors.groupingBy(Purchase::byProduct)).keySet()
                 .stream().map(entityConstructor).toList();
         repository.saveAll(products);
+    }
+
+    public ImportResponse importSalon(InputStream clientFile, InputStream appointmentFile, InputStream purchaseFile, InputStream servicesFile) {
+        ImportEntityStatus clientResponse = this.importClientCsv(clientFile);
+        this.importAppointmentCsv(appointmentFile);
+        this.importPurchaseCsv(purchaseFile);
+        this.importServiceCsv(servicesFile);
+        return null;
     }
 }
