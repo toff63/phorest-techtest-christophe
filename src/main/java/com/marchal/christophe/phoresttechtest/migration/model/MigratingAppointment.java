@@ -8,6 +8,14 @@ import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+/**
+ * CSV Appointment format
+ *
+ * @param id
+ * @param startTime
+ * @param endTime
+ * @param clientId
+ */
 public record MigratingAppointment(
         @NotNull
         UUID id,

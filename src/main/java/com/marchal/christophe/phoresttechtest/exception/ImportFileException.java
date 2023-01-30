@@ -1,5 +1,8 @@
 package com.marchal.christophe.phoresttechtest.exception;
 
+/**
+ * Exception thrown when file path is invalid
+ */
 public class ImportFileException extends RuntimeException {
     public ImportFileException() {
         super();

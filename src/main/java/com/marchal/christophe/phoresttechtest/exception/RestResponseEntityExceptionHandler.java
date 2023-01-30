@@ -14,6 +14,10 @@ import java.util.List;
 
 import static org.springframework.util.ClassUtils.isAssignable;
 
+/**
+ * Handle validation exceptions thrown when client try to save or update an entity using REST
+ * with invalid input.
+ */
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -25,7 +29,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
      * @return
      */
     @ExceptionHandler({TransactionSystemException.class})
-    public ResponseEntity<Object> handleAccessDeniedException(Exception ex, WebRequest request) {
+    public ResponseEntity<Object> handleConstraintValidationException(Exception ex, WebRequest request) {
         TransactionSystemException transactionSystemException = (TransactionSystemException) ex;
         if (transactionSystemException.getOriginalException() != null &&
                 isAssignable(transactionSystemException.getOriginalException().getClass(), RollbackException.class) &&

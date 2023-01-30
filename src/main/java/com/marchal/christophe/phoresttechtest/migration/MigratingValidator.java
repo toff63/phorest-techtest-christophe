@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Validate parsed data using Java bean validation
+ */
 @Component
 public class MigratingValidator {
     private final Validator validator;

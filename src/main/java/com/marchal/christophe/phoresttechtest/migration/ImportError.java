@@ -4,6 +4,13 @@ import jakarta.validation.ConstraintViolation;
 
 import java.util.Set;
 
+/**
+ * Information about why a parsed line failed once validated
+ *
+ * @param parsedLine   content after parsing
+ * @param errorMessage validation error related to the parsed content
+ * @param <T>          Content parsed type
+ */
 public record ImportError<T>(
         T parsedLine,
         String errorMessage

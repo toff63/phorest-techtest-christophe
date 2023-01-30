@@ -16,6 +16,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * Service responsible for importing data coming from Files into the salon database
+ */
 @Service
 public class ImportService {
     private final MigratingValidator validator;

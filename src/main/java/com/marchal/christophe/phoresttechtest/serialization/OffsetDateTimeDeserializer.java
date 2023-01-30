@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Deserialize dates coming from CSV with non standard format
+ */
 public class OffsetDateTimeDeserializer extends StdScalarDeserializer<OffsetDateTime> {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
 

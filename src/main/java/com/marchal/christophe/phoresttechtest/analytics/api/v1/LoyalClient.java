@@ -1,8 +1,17 @@
-package com.marchal.christophe.phoresttechtest.analytics.contract;
+package com.marchal.christophe.phoresttechtest.analytics.api.v1;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Record exposing Loyal client through external API
+ *
+ * @param firstName
+ * @param lastName
+ * @param email
+ * @param phone
+ * @param gender
+ */
 public record LoyalClient(
         @NotNull
         String firstName,

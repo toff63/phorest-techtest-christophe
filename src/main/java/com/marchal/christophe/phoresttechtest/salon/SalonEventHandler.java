@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Ensure imported entities always have a UUID, either they are imported either they are added using REST API
+ */
 @Component
 @RepositoryEventHandler
 public class SalonEventHandler {

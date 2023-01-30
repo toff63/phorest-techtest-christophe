@@ -2,6 +2,7 @@ package com.marchal.christophe.phoresttechtest.migration.api;
 
 import com.marchal.christophe.phoresttechtest.migration.ImportError;
 import com.marchal.christophe.phoresttechtest.migration.ImportStatus;
+import com.marchal.christophe.phoresttechtest.migration.api.v1.ImportResponse;
 import com.marchal.christophe.phoresttechtest.migration.model.MigratingClient;
 import com.marchal.christophe.phoresttechtest.salon.Appointment;
 import com.marchal.christophe.phoresttechtest.salon.Purchase;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Convert internal data structures to exposed data structures
+ */
 @Component
 public class ServiceResponseConverter {
     public ImportResponse toImportResponse(ImportStatus serviceResponse) {

@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ * Parse CSV content
+ */
 @Component
 public class CsvParser {
 

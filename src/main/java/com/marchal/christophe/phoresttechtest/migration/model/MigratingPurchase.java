@@ -7,6 +7,15 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
+/**
+ * * CSV Purchase format
+ *
+ * @param id
+ * @param name
+ * @param price
+ * @param loyaltyPoints
+ * @param appointmentId
+ */
 public record MigratingPurchase(
         @NotNull
         UUID id,

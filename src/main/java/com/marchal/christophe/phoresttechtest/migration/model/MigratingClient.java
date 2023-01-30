@@ -7,6 +7,17 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
+/**
+ * * CSV Client format
+ *
+ * @param id
+ * @param firstName
+ * @param lastName
+ * @param email
+ * @param phone
+ * @param gender
+ * @param banned
+ */
 public record MigratingClient(
         UUID id,
         @NotEmpty

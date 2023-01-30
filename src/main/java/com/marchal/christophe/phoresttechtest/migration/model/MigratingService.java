@@ -7,6 +7,15 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
+/**
+ * * CSV Service format
+ *
+ * @param id
+ * @param name
+ * @param price
+ * @param loyaltyPoints
+ * @param appointmentId
+ */
 public record MigratingService(
         @NotNull
         UUID id,

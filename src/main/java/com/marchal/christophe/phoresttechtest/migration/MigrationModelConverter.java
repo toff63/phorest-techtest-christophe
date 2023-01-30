@@ -10,6 +10,9 @@ import com.marchal.christophe.phoresttechtest.salon.Purchase;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
+/**
+ * Responsible for converting data from CSV format to internal model
+ */
 @Component
 @Log4j2
 public class MigrationModelConverter {

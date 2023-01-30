@@ -3,6 +3,7 @@ package com.marchal.christophe.phoresttechtest.migration.api;
 import com.marchal.christophe.phoresttechtest.exception.ImportFileException;
 import com.marchal.christophe.phoresttechtest.migration.ImportService;
 import com.marchal.christophe.phoresttechtest.migration.ImportStatus;
+import com.marchal.christophe.phoresttechtest.migration.api.v1.ImportResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Controller responsible for endpoint related to data import
+ */
 @RestController
 @RequestMapping("/import")
 public class ImportController {
