@@ -11,5 +11,5 @@
 * [X] Add import CSV endpoint for services
 * [X] Add import CSV endpoint for purchases 
 * [X] Add endpoint returning most loyal clients
-* [ ] Polish by adding some validation
+* [X] Polish by adding some validation
 * [ ] Add / Update documentation
