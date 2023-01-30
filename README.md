@@ -11,9 +11,9 @@
 Below is the database model
 ![database schema](https://github.com/toff63/phorest-techtest-christophe/raw/master/doc/schema.png)
 
-Purchase table contains all data related to purchase the schema for product and service is the same. The model is pointing to Products and Services tables because we want to be able to update prices without touching the price of past purchases.
+Purchase table contains all data related to purchased goods and services because the schema for product and service is the same. Appointment isn't referencing Products and Services tables because purchases should be immutable.
 
-The system fills Products and Services tables when importing CSV by finding unique name, price, loyalty points tuples.
+The system fills Products and Services tables when importing CSV by finding unique name, price and loyalty points tuples.
 
 ### API
 
@@ -329,12 +329,11 @@ The response follow the same pattern as the one for client:
 }
 ```
 
-We can confirm appointments are associated to the created user as going to `http://localhost:8080/client/50f1dcfc-e4ab-4d90-8994-2654abc46228/appointments` returns the same data as above.
+We can confirm appointments are associated with the created user as going to `http://localhost:8080/client/50f1dcfc-e4ab-4d90-8994-2654abc46228/appointments` returns the same data as above.
 
-### Software design principle
+### Software design principles
 
-Except for the generated RESTful API, endpoint follow the onion architecture with a clear separation between API objects and service and model objects. It adds some boilerplate code with converters but provide a flexibility that make system easier to maintain and evolve.
-
+Except for the generated RESTful API, endpoints follow the onion architecture with a clear separation between API objects and service and model objects. It adds some boilerplate code with converters but provides a flexibility that makes the system easier to maintain and evolve.
 ### Tests
 
 Integration tests have been written to validate the RESTful API. Other endpoints logic has been validated by writing unit tests and tests at the service level.
