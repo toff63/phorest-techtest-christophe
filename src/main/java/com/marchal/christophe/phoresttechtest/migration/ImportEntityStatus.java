@@ -2,8 +2,8 @@ package com.marchal.christophe.phoresttechtest.migration;
 
 import java.util.Set;
 
-public record ImportEntityStatus(
+public record ImportEntityStatus<T>(
         int numberOfImportedEntities,
-        Set<ImportError> errors
+        Set<ImportError<T>> errors
 ) {
 }

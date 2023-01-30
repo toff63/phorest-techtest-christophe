@@ -1,13 +1,11 @@
 package com.marchal.christophe.phoresttechtest.migration;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,10 +22,9 @@ public class MigratingValidator {
                         validator.validate(client).size() == 0
                 ));
         List<T> invalidEntities = partitionedClients.get(false);
-
-        Map<T, Set<ConstraintViolation<T>>> errors = invalidEntities.stream()
-                .collect(Collectors.toMap(Function.identity(), validator::validate));
-
+        Set<ImportError<T>> errors = invalidEntities.stream()
+                .map(entity -> ImportError.fromConstraintsViolation(entity, validator.validate(entity)))
+                .collect(Collectors.toSet());
         List<T> validEntities = partitionedClients.get(true);
         return new ValidatedEntity<T>(validEntities, errors);
     }
